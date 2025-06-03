@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rice Shop Billing</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Rice Shop Daily Billing</h1>
+
+    <div style="text-align: right; margin-bottom: 10px;">
+      <button id="new-day-btn" onclick="startNewDay()">🗓️ Start New Day</button>
+    </div>
+
+    <div class="form-section">
+      <label>Product:</label>
+      <select id="product">
+        <option value="Sona Masuri" data-price="50">Sona Masuri (₹50/kg)</option>
+        <option value="Basmati" data-price="70">Basmati (₹70/kg)</option>
+        <option value="Ponni" data-price="55">Ponni (₹55/kg)</option>
+      </select>
+
+      <label>Quantity (kg):</label>
+      <input type="number" id="quantity" min="1" value="1">
+
+      <label>Discount (₹):</label>
+      <input type="number" id="discount" min="0" value="0" placeholder="0">
+
+      <button onclick="addSale()">Add to Report</button>
+    </div>
+
+    <h2>Today's Sales</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty (kg)</th>
+          <th>Price/kg</th>
+          <th>Discount</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="sales-body"></tbody>
+    </table>
+
+    <div class="summary">
+      <h3>Total Revenue: ₹<span id="total-revenue">0.00</span></h3>
+      <button id="generate-pdf-btn" onclick="generatePDF()">📄 Generate PDF & Close Day</button>
+    </div>
+  </div>
+
+  <!-- JS Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
