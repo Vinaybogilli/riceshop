@@ -2,57 +2,339 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rice Shop Billing</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: #007bff;
+      color: white;
+      padding: 12px 20px;
+      font-size: 1.2rem;
+      text-align: center;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      z-index: 10;
+    }
+
+    .main-container {
+      display: flex;
+      height: calc(100vh - 56px); /* subtract header height */
+      margin-top: 56px;
+    }
+
+    .products-section {
+      width: 70%;
+      padding: 20px;
+      overflow-y: auto;
+      background: #f9f9f9;
+    }
+
+    #searchBar {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .product-card img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .product-info {
+      text-align: center;
+    }
+
+    .product-info h4 {
+      margin: 10px 0 6px;
+    }
+
+    .product-info p {
+      margin: 0 0 12px;
+      font-weight: bold;
+    }
+
+    .controls {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .controls label {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .controls input[type="number"] {
+      width: 60px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .add-btn {
+      padding: 8px 14px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .add-btn:hover {
+      background: #0056b3;
+    }
+
+    /* Cart Panel */
+    #cartContainer {
+      width: 30%;
+      background: white;
+      padding: 20px;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #cartContainer h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    #cartItems {
+      flex-grow: 1;
+      overflow-y: auto;
+      list-style: none;
+      padding: 0;
+      margin-bottom: 10px;
+    }
+
+    #cartItems li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+
+    #cartItems li:last-child {
+      border-bottom: none;
+    }
+
+    #cartItems li button {
+      background: none;
+      border: none;
+      color: red;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    #cartTotal {
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-align: right;
+      margin-top: 10px;
+    }
+
+    #printBillBtn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: auto;
+      width: 100%;
+    }
+
+    #printBillBtn:hover {
+      background: #218838;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Rice Shop Daily Billing</h1>
 
-    <div style="text-align: right; margin-bottom: 10px;">
-      <button id="new-day-btn" onclick="startNewDay()">🗓️ Start New Day</button>
-    </div>
+  <header>Rice Shop Billing</header>
 
-    <div class="form-section">
-      <label>Product:</label>
-      <select id="product">
-        <option value="Sona Masuri" data-price="50">Sona Masuri (₹50/kg)</option>
-        <option value="Basmati" data-price="70">Basmati (₹70/kg)</option>
-        <option value="Ponni" data-price="55">Ponni (₹55/kg)</option>
-      </select>
+  <div class="main-container">
+    <!-- Product Section -->
+    <section class="products-section">
+      <input type="text" id="searchBar" placeholder="Search products..." />
+      <div class="product-grid" id="productGrid"></div>
+    </section>
 
-      <label>Quantity (kg):</label>
-      <input type="number" id="quantity" min="1" value="1">
-
-      <label>Discount (₹):</label>
-      <input type="number" id="discount" min="0" value="0" placeholder="0">
-
-      <button onclick="addSale()">Add to Report</button>
-    </div>
-
-    <h2>Today's Sales</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Qty (kg)</th>
-          <th>Price/kg</th>
-          <th>Discount</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody id="sales-body"></tbody>
-    </table>
-
-    <div class="summary">
-      <h3>Total Revenue: ₹<span id="total-revenue">0.00</span></h3>
-      <button id="generate-pdf-btn" onclick="generatePDF()">📄 Generate PDF & Close Day</button>
-    </div>
+    <!-- Cart Section -->
+    <aside id="cartContainer">
+      <h2>Cart</h2>
+      <ul id="cartItems"></ul>
+      <div id="cartTotal">Total: ₹0.00</div>
+      <button id="printBillBtn">Print Bill</button>
+    </aside>
   </div>
 
-  <!-- JS Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <script src="script.js"></script>
+  <script>
+    const products = [
+      { id: 1, name: 'Basmati Rice', price: 50, img: 'basmati.png' },
+      { id: 2, name: 'Sona Masoori', price: 40, img: 'sonamasoori.jpg' },
+      { id: 3, name: 'Brown Rice', price: 60, img: 'brownrice.jpg' },
+      { id: 4, name: 'Jasmine Rice', price: 70, img: 'jasmine rice.webp' },
+      { id: 5, name: 'Parboiled Rice', price: 55, img: 'paraboiled rice.jpg' }
+    ];
+
+    let cart = [];
+
+    const productGrid = document.getElementById('productGrid');
+    const cartItems = document.getElementById('cartItems');
+    const searchBar = document.getElementById('searchBar');
+    const printBillBtn = document.getElementById('printBillBtn');
+    const cartTotal = document.getElementById('cartTotal');
+
+    function renderProducts(filter = '') {
+      productGrid.innerHTML = '';
+      const filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(filter.toLowerCase())
+      );
+      filteredProducts.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" />
+          <div class="product-info">
+            <h4>${product.name}</h4>
+            <p>₹${product.price} / kg</p>
+          </div>
+          <div class="controls">
+            <label>Qty: <input type="number" min="1" value="1" id="qty-${product.id}"></label>
+            <label>Discount: <input type="number" min="0" max="100" value="0" id="disc-${product.id}"></label>
+            <button class="add-btn" onclick="addToCart(${product.id})">Add</button>
+          </div>
+        `;
+        productGrid.appendChild(card);
+      });
+    }
+
+    function addToCart(productId) {
+      const product = products.find(p => p.id === productId);
+      const qty = parseInt(document.getElementById(`qty-${productId}`).value);
+      const disc = parseFloat(document.getElementById(`disc-${productId}`).value);
+
+      if (!qty || qty < 1) return alert('Enter valid quantity.');
+      if (isNaN(disc) || disc < 0 || disc > 100) return alert('Enter valid discount.');
+
+      const existing = cart.find(item => item.product.id === productId);
+      if (existing) {
+        existing.quantity += qty;
+        existing.discount = disc;
+      } else {
+        cart.push({ product, quantity: qty, discount: disc });
+      }
+
+      renderCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = '';
+      let total = 0;
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<li>Your cart is empty</li>';
+        cartTotal.textContent = 'Total: ₹0.00';
+        return;
+      }
+
+      cart.forEach((item, index) => {
+        const priceAfterDiscount = item.product.price * item.quantity * (1 - item.discount / 100);
+        total += priceAfterDiscount;
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span>${item.product.name} x ${item.quantity} (${item.discount}%)</span>
+          <span>₹${priceAfterDiscount.toFixed(2)}</span>
+          <button onclick="removeFromCart(${index})">×</button>
+        `;
+        cartItems.appendChild(li);
+      });
+
+      cartTotal.textContent = `Total: ₹${total.toFixed(2)}`;
+    }
+
+    printBillBtn.onclick = () => {
+      if (cart.length === 0) {
+        alert("Cart is empty!");
+        return;
+      }
+
+      let content = "Product\tQty\tDiscount\tAmount\n";
+      let total = 0;
+
+      cart.forEach(item => {
+        const amt = item.product.price * item.quantity * (1 - item.discount / 100);
+        content += `${item.product.name}\t${item.quantity}\t${item.discount}%\t₹${amt.toFixed(2)}\n`;
+        total += amt;
+      });
+
+      content += `\nTotal: ₹${total.toFixed(2)}`;
+
+      const win = window.open('', '', 'width=600,height=500');
+      win.document.write('<pre>' + content + '</pre>');
+      win.document.close();
+      win.print();
+      win.close();
+
+      cart = [];
+      renderCart();
+    };
+
+    searchBar.addEventListener('input', () => {
+      renderProducts(searchBar.value);
+    });
+
+    window.addToCart = addToCart;
+    window.removeFromCart = removeFromCart;
+
+    renderProducts();
+    renderCart();
+  </script>
 </body>
 </html>
